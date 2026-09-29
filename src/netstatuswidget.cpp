@@ -82,6 +82,11 @@ void NetStatusWidget::updateStatus()
     qCDebug(LC_NETSTATUS_WIDGET) << "Status updated:" << connectivity;
 }
 
+void NetStatusWidget::setShowSpeed(bool show)
+{
+    m_speedLabel->setVisible(show);
+}
+
 void NetStatusWidget::updateSpeed()
 {
     qint64 currentTime = QDateTime::currentMSecsSinceEpoch();

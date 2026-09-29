@@ -71,6 +71,7 @@ void NetStatus::realign()
 void NetStatus::settingsChanged()
 {
     m_settings.init(settings());
+    m_widget.setShowSpeed(m_settings.showSpeed());
     updateWidgetFromNetworkManager();
 }
 

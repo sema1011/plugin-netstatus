@@ -48,6 +48,9 @@ public:
 
     /// Update widget with current network status
     void updateStatus();
+    
+    /// Show/hide speed label
+    void setShowSpeed(bool show);
 
 signals:
     void activated();
