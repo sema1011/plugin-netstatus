@@ -95,14 +95,9 @@ if(TRANSLATION_QM_FILES)
     add_custom_target(translations ALL DEPENDS ${TRANSLATION_QM_FILES})
 endif()
 
-# Install compiled .qm files with plugin prefix
+# Install compiled .qm files
 if(TRANSLATION_QM_FILES)
-    foreach(qm ${TRANSLATION_QM_FILES})
-        get_filename_component(qm_name ${qm} NAME)  # e.g. "ru.qm"
-        string(REGEX REPLACE "^(${PROJECT_NAME}-)?(.*)\\.qm$" "\\2" lang ${qm_name})
-        install(FILES ${qm}
-            RENAME "${PROJECT_NAME}-${lang}.qm"
-            DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/lxqt/translations/lxqt-panel/${PROJECT_NAME}"
-        )
-    endforeach()
+    install(FILES ${TRANSLATION_QM_FILES}
+        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/lxqt/translations/lxqt-panel/netstatus"
+    )
 endif()
