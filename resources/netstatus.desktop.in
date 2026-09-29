@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=LXQtPanelService
+ServiceTypes=LXQtPanel/Plugin
+Name=NetStatus
+Name[ru]=Индикатор сети
+Comment=Display network connection status
+Comment[ru]=Отображает статус сетевого подключения
+Icon=network-offline
+X-LXQt-CanRemove=false
+X-LXQt-Required=false

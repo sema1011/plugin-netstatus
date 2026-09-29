@@ -1,0 +1,30 @@
+# Build directory
+build/
+cmake-build-*/
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
+*.cmake
+DartConfiguration.tcl
+TestDriver.cmake
+compile_commands.json
+install_manifest.txt
+
+# Qt
+*.ts
+*.qm
+
+# IDE
+.idea/
+*.swp
+*.swo
+*~
+.vscode/
+*.sublime-*
+
+# OS
+.DS_Store
+Thumbs.db
