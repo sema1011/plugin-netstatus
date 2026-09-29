@@ -100,15 +100,15 @@ QIcon NetStatusWidget::getConnectivityIcon() const
     switch (connectivity)
     {
         case NetworkManager::Connectivity::Full:
-            return QIcon::fromTheme("network-wireless-connected");
+            return QIcon::fromTheme("network-wireless-connected-symbolic");
         case NetworkManager::Connectivity::Limited:
-            return QIcon::fromTheme("network-limited");
+            return QIcon::fromTheme("network-wireless-acquiring-symbolic");
         case NetworkManager::Connectivity::Portal:
-            return QIcon::fromTheme("network-wireless-acquiring");
+            return QIcon::fromTheme("network-wireless-acquiring-symbolic");
         case NetworkManager::Connectivity::NoConnectivity:
         case NetworkManager::Connectivity::UnknownConnectivity:
-            return QIcon::fromTheme("network-wireless-disconnected");
+            return QIcon::fromTheme("network-wireless-disconnected-symbolic");
         default:
-            return QIcon::fromTheme("network-offline");
+            return QIcon::fromTheme("network-wireless-disconnected-symbolic");
     }
 }
