@@ -14,8 +14,6 @@ compile_commands.json
 install_manifest.txt
 
 # Qt
-*.ts
-*.qm
 
 # IDE
 .idea/
