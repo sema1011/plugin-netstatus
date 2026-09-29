@@ -112,5 +112,3 @@ QIcon NetStatusWidget::getConnectivityIcon() const
             return QIcon::fromTheme("network-off");
     }
 }
-
-#include "netstatuswidget.moc"

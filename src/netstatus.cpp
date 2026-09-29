@@ -106,5 +106,3 @@ void NetStatus::updateWidgetFromNetworkManager()
 {
     m_widget.updateStatus();
 }
-
-#include "netstatus.moc"

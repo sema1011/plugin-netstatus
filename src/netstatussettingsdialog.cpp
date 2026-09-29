@@ -116,5 +116,3 @@ void NetStatusSettingsDialog::onApply()
 
     qCDebug(LC_NETSTATUS_DIALOG) << "Settings applied";
 }
-
-#include "netstatussettingsdialog.moc"
