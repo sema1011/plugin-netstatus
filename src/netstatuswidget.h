@@ -27,17 +27,15 @@
 
 #include <QWidget>
 #include <QLabel>
-#include <QTimer>
+#include <QTimerEvent>
 #include <networkmanagerqt/manager.h>
-#include <networkmanagerqt/device.h>
-#include <networkmanagerqt/activeconnection.h>
 
 class NetStatusSettings;
 
 /**
  * \brief Widget displayed on the LXQt panel.
  *
- * Shows network connectivity icon and optional upload/download speeds.
+ * Shows network connectivity icon with speed indicator below.
  */
 class NetStatusWidget: public QWidget
 {
@@ -52,21 +50,17 @@ public:
     /// Show/hide speed label
     void setShowSpeed(bool show);
 
-signals:
-    void activated();
-
-private Q_SLOTS:
-    void updateSpeed();
+protected:
+    void timerEvent(QTimerEvent *event) override;
 
 private:
     QIcon getConnectivityIcon() const;
-    QString getConnectionName() const;
     void getSpeeds(qulonglong &upload, qulonglong &download) const;
 
     NetStatusSettings *m_settings;
     QLabel *m_iconLabel;
     QLabel *m_speedLabel;
-    QTimer *m_speedTimer;
+    int m_speedTimer;
     qulonglong m_lastUpload;
     qulonglong m_lastDownload;
     qint64 m_lastTime;

@@ -25,8 +25,6 @@
 #include "netstatuswidget.h"
 #include "netstatussettings.h"
 
-#include <QMouseEvent>
-#include <QToolTip>
 #include <QLoggingCategory>
 #include <QIcon>
 #include <QDateTime>
@@ -40,24 +38,28 @@ NetStatusWidget::NetStatusWidget(NetStatusSettings *settings, QWidget *parent):
     m_settings(settings),
     m_iconLabel(new QLabel(this)),
     m_speedLabel(new QLabel(this)),
-    m_speedTimer(new QTimer(this)),
+    m_lastUpload(0),
+    m_lastDownload(0),
     m_lastTime(QDateTime::currentMSecsSinceEpoch())
 {
     auto *layout = new QVBoxLayout(this);
     layout->setContentsMargins(2, 0, 2, 0);
     layout->setSpacing(0);
+    
+    // Fix icon size so it doesn't stretch
+    m_iconLabel->setFixedSize(32, 32);
+    m_iconLabel->setAlignment(Qt::AlignCenter);
     layout->addWidget(m_iconLabel);
-    layout->addWidget(m_speedLabel);
     
     m_speedLabel->setVisible(m_settings->showSpeed());
+    m_speedLabel->setAlignment(Qt::AlignCenter);
+    m_speedLabel->setStyleSheet("font-size: 10px;");
+    layout->addWidget(m_speedLabel);
     
-    setToolTip(tr("Network Status"));
     setMaximumSize(48, 48);
     
-    // Setup speed update timer
-    m_speedTimer->setInterval(m_settings->updateInterval());
-    connect(m_speedTimer, &QTimer::timeout, this, &NetStatusWidget::updateSpeed);
-    m_speedTimer->start();
+    // Start speed calculation timer
+    m_speedTimer = startTimer(1000);
 }
 
 void NetStatusWidget::updateStatus()
@@ -65,21 +67,6 @@ void NetStatusWidget::updateStatus()
     NetworkManager::Connectivity connectivity = NetworkManager::connectivity();
     
     m_iconLabel->setPixmap(getConnectivityIcon().pixmap(32, 32));
-    
-    // Update tooltip with connection details
-    QString tooltip = tr("Network: %1").arg(
-        connectivity == NetworkManager::Connectivity::Full ? 
-        tr("Connected") : 
-        connectivity == NetworkManager::Connectivity::Limited ? 
-        tr("Limited") : 
-        connectivity == NetworkManager::Connectivity::Portal ? 
-        tr("Portal") : 
-        tr("Disconnected")
-    );
-    
-    setToolTip(tooltip);
-    
-    qCDebug(LC_NETSTATUS_WIDGET) << "Status updated:" << connectivity;
 }
 
 void NetStatusWidget::setShowSpeed(bool show)
@@ -87,15 +74,46 @@ void NetStatusWidget::setShowSpeed(bool show)
     m_speedLabel->setVisible(show);
 }
 
-void NetStatusWidget::updateSpeed()
+void NetStatusWidget::timerEvent(QTimerEvent *event)
 {
-    qint64 currentTime = QDateTime::currentMSecsSinceEpoch();
-    qint64 timeDelta = currentTime - m_lastTime;
-    
-    if (timeDelta > 0)
+    if (event->timerId() == m_speedTimer)
     {
+        qulonglong upload = 0;
+        qulonglong download = 0;
+        getSpeeds(upload, download);
+        
+        qint64 currentTime = QDateTime::currentMSecsSinceEpoch();
+        qint64 timeDelta = currentTime - m_lastTime;
+        
+        if (timeDelta > 0 && m_lastTime > 0)
+        {
+            qreal uploadSpeed = (upload - m_lastUpload) * 1000.0 / timeDelta;
+            qreal downloadSpeed = (download - m_lastDownload) * 1000.0 / timeDelta;
+            
+            if (uploadSpeed > 0 || downloadSpeed > 0)
+            {
+                m_speedLabel->setText(QString("%1↑ %2↓")
+                    .arg(downloadSpeed > 1024 ? 
+                         QString::number(downloadSpeed / 1024, 'f', 1) + "K" : 
+                         QString::number(downloadSpeed, 'f', 0) + "B")
+                    .arg(uploadSpeed > 1024 ? 
+                         QString::number(uploadSpeed / 1024, 'f', 1) + "K" : 
+                         QString::number(uploadSpeed, 'f', 0) + "B"));
+            }
+        }
+        
+        m_lastUpload = upload;
+        m_lastDownload = download;
         m_lastTime = currentTime;
     }
+    
+    QWidget::timerEvent(event);
+}
+
+void NetStatusWidget::getSpeeds(qulonglong &upload, qulonglong &download) const
+{
+    upload = 0;
+    download = 0;
 }
 
 QIcon NetStatusWidget::getConnectivityIcon() const
