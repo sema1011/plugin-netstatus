@@ -29,7 +29,6 @@
 #include "netstatuswidget.h"
 #include "netstatussettings.h"
 
-#include <QTranslator>
 #include <networkmanagerqt/manager.h>
 
 class QDialog;
@@ -72,7 +71,6 @@ private:
 
     NetStatusSettings m_settings;
     NetStatusWidget m_widget;
-    QTranslator m_translator;
     QDialog *m_configDialog{nullptr};
 };
 

@@ -27,7 +27,8 @@
 
 #include <QLoggingCategory>
 #include <QGuiApplication>
-#include <QLibraryInfo>
+#include <QLocale>
+#include <QTranslator>
 
 Q_LOGGING_CATEGORY(LC_NETSTATUS, "netstatus")
 
@@ -37,14 +38,6 @@ NetStatus::NetStatus(const ILXQtPanelPluginStartupInfo &startupInfo) :
     m_widget(&m_settings)
 {
     // Install translator for plugin localization
-    QString locale = QLocale::system().name();
-    QString translationPath = LXQT_SHARE_DIR "/translations/";
-    
-    QString qmFile = locale.split('_').first();
-    if (m_translator.load(qmFile, translationPath)) {
-        QGuiApplication::installTranslator(&m_translator);
-    }
-    
     m_settings.init(settings());
 
     // Connect to NetworkManager notifier signals
