@@ -5,6 +5,6 @@ Name=NetStatus
 Name[ru]=Индикатор сети
 Comment=Display network connection status
 Comment[ru]=Отображает статус сетевого подключения
-Icon=network-offline
+Icon=network-wireless-disconnected
 X-LXQt-CanRemove=false
 X-LXQt-Required=false
