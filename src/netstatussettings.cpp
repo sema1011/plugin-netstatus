@@ -43,7 +43,10 @@ public:
     void setValue(const QString &key, const QVariant &value) override
     {
         if (m_settings)
+        {
             m_settings->setValue(key, value);
+            m_settings->sync();
+        }
     }
 
 private:
