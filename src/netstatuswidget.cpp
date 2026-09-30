@@ -270,7 +270,11 @@ QString NetStatusWidget::activeInterfaceName() const
         {
             auto device = NetworkManager::findNetworkInterface(deviceList.first());
             if (device)
-                return device->interfaceName();
+            {
+                const QString iface = device->interfaceName();
+                if (iface != "lo")
+                    return iface;
+            }
         }
     }
     return {};
