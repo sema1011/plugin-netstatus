@@ -49,22 +49,22 @@ NetStatusWidget::NetStatusWidget(NetStatusSettings *settings, QWidget *parent):
     auto *layout = new QHBoxLayout(this);
     layout->setContentsMargins(2, 0, 2, 0);
     layout->setSpacing(2);
-    
+
     // Fix icon size so it doesn't stretch
     m_iconLabel->setFixedSize(32, 32);
     layout->addWidget(m_iconLabel, 0, Qt::AlignVCenter);
-    
+
     m_speedLabel->setVisible(m_settings->showSpeed());
     m_speedLabel->setAlignment(Qt::AlignVCenter);
     m_speedLabel->setStyleSheet(QString("font-size: %1px;").arg(m_settings->fontSize()));
     m_speedLabel->setObjectName("speedLabel");
     layout->addWidget(m_speedLabel, 0, Qt::AlignVCenter);
-    
+
     setMaximumSize(200, 48);
-    
+
     // Initialize device statistics
     initializeStatistics();
-    
+
     // Start speed calculation timer with configurable interval
     m_speedTimer = startTimer(m_currentInterval);
 }
@@ -72,15 +72,15 @@ NetStatusWidget::NetStatusWidget(NetStatusSettings *settings, QWidget *parent):
 void NetStatusWidget::updateStatus()
 {
     NetworkManager::Connectivity connectivity = NetworkManager::connectivity();
-    
+
     m_iconLabel->setPixmap(getConnectivityIcon().pixmap(32, 32));
-    
+
     // Set tooltip with connection details
     if (m_settings->showTooltip())
     {
         QString connName = activeConnectionName();
         QString ifaceName = activeInterfaceName();
-        
+
         QString tooltip;
         switch (connectivity)
         {
@@ -97,12 +97,12 @@ void NetStatusWidget::updateStatus()
                 tooltip = tr("Disconnected");
                 break;
         }
-        
+
         if (!connName.isEmpty())
             tooltip += "\n" + connName;
         if (!ifaceName.isEmpty())
             tooltip += "\n" + ifaceName;
-        
+
         setToolTip(tooltip);
     }
     else
@@ -140,32 +140,32 @@ void NetStatusWidget::timerEvent(QTimerEvent *event)
         qulonglong upload = 0;
         qulonglong download = 0;
         getSpeeds(upload, download);
-        
+
         qint64 currentTime = QDateTime::currentMSecsSinceEpoch();
         qint64 timeDelta = currentTime - m_lastTime;
-        
+
         if (timeDelta > 0 && m_lastTime > 0)
         {
             qreal uploadSpeed = (upload - m_lastUpload) * 1000.0 / timeDelta;
             qreal downloadSpeed = (download - m_lastDownload) * 1000.0 / timeDelta;
-            
+
             if (uploadSpeed > 0 || downloadSpeed > 0)
             {
                 m_speedLabel->setText(QString("%1↑ %2↓")
-                    .arg(downloadSpeed > 1024 ? 
-                         QString::number(downloadSpeed / 1024, 'f', 1) + "K" : 
+                    .arg(downloadSpeed > 1024 ?
+                         QString::number(downloadSpeed / 1024, 'f', 1) + "K" :
                          QString::number(downloadSpeed, 'f', 0) + "B")
-                    .arg(uploadSpeed > 1024 ? 
-                         QString::number(uploadSpeed / 1024, 'f', 1) + "K" : 
+                    .arg(uploadSpeed > 1024 ?
+                         QString::number(uploadSpeed / 1024, 'f', 1) + "K" :
                          QString::number(uploadSpeed, 'f', 0) + "B"));
             }
         }
-        
+
         m_lastUpload = upload;
         m_lastDownload = download;
         m_lastTime = currentTime;
     }
-    
+
     QWidget::timerEvent(event);
 }
 
@@ -231,20 +231,20 @@ void NetStatusWidget::initializeStatistics()
 QIcon NetStatusWidget::getConnectivityIcon() const
 {
     NetworkManager::Connectivity connectivity = NetworkManager::connectivity();
-    
+
     switch (connectivity)
     {
         case NetworkManager::Connectivity::Full:
-            return QIcon::fromTheme("network-wireless-connected-symbolic");
+            return QIcon::fromTheme("network-wired-activated-symbolic");
         case NetworkManager::Connectivity::Limited:
-            return QIcon::fromTheme("network-wireless-acquiring-symbolic");
+            return QIcon::fromTheme("network-wired-activated-limited");
         case NetworkManager::Connectivity::Portal:
-            return QIcon::fromTheme("network-wireless-acquiring-symbolic");
+            return QIcon::fromTheme("network-wired-activated-locked");
         case NetworkManager::Connectivity::NoConnectivity:
         case NetworkManager::Connectivity::UnknownConnectivity:
-            return QIcon::fromTheme("network-wireless-disconnected-symbolic");
+            return QIcon::fromTheme("network-wired-disconnected-symbolic");
         default:
-            return QIcon::fromTheme("network-wireless-disconnected-symbolic");
+            return QIcon::fromTheme("network-wired-disconnected-symbolic");
     }
 }
 
