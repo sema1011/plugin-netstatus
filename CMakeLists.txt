@@ -11,6 +11,8 @@ qt_standard_project_setup()
 
 # LXQt
 find_package(lxqt REQUIRED)
+include(LXQtTranslationLoader)
+include(LXQtTranslate)
 
 # KF6 NetworkManagerQt
 find_package(KF6NetworkManagerQt REQUIRED)
@@ -31,10 +33,30 @@ set(SOURCES
     src/netstatussettingsdialog.cpp
 )
 
-set(UI_FILES)
+# Translation loader - generates code that calls LXQt::Translator::translatePlugin("netstatus", "lxqt-panel")
+lxqt_plugin_translation_loader(QM_LOADER netstatus "lxqt-panel")
 
-# Libraries to link
-set(LIBRARIES
+# Handle translations using lxqt_translate_ts
+# Looks for netstatus_*.ts files in translations/ directory
+lxqt_translate_ts(TRANSLATION_QM_FILES
+    SOURCES
+        ${HEADERS}
+        ${SOURCES}
+    TEMPLATE
+        netstatus
+    INSTALL_DIR
+        ${CMAKE_INSTALL_DATAROOTDIR}/lxqt/translations/lxqt-panel/netstatus
+)
+
+# Build plugin as shared library
+add_library(${PROJECT_NAME} MODULE
+    ${HEADERS}
+    ${SOURCES}
+    ${QM_LOADER}
+    ${TRANSLATION_QM_FILES}
+)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
     Qt6::Widgets
     Qt6::Xml
     Qt6::DBus
@@ -42,14 +64,6 @@ set(LIBRARIES
     KF6::NetworkManagerQt
     lxqt
 )
-
-# Build plugin as shared library
-add_library(${PROJECT_NAME} MODULE
-    ${HEADERS}
-    ${SOURCES}
-)
-
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRARIES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src ${CMAKE_BINARY_DIR})
 
@@ -63,38 +77,11 @@ install(TARGETS ${PROJECT_NAME}
     DESTINATION "${CMAKE_INSTALL_LIBDIR}/lxqt-panel"
 )
 
-# Install desktop file (install as .desktop, not .desktop.in)
+# Install desktop file
 install(FILES resources/netstatus.desktop.in
     RENAME netstatus.desktop
     DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/lxqt/lxqt-panel"
 )
-
-# Auto-compile all .ts files to .qm files for translations
-file(GLOB TRANSLATION_TS_FILES "${CMAKE_SOURCE_DIR}/translations/*.ts")
-set(TRANSLATION_QM_FILES "")
-foreach(ts_file ${TRANSLATION_TS_FILES})
-    get_filename_component(ts_name ${ts_file} NAME_WE)  # e.g. "ru" from "ru.ts"
-    
-    # Skip template files (they are just examples, not real translations)
-    if(ts_name STREQUAL "template")
-        continue()
-    endif()
-    
-    qt_add_translation(QM_FILES ${ts_file})
-    list(APPEND TRANSLATION_QM_FILES ${QM_FILES})
-endforeach()
-
-# Create a target to build all translations
-if(TRANSLATION_QM_FILES)
-    add_custom_target(translations ALL DEPENDS ${TRANSLATION_QM_FILES})
-endif()
-
-# Install compiled .qm files
-if(TRANSLATION_QM_FILES)
-    install(FILES ${TRANSLATION_QM_FILES}
-        DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/lxqt/translations/lxqt-panel/netstatus"
-    )
-endif()
 
 # Tests
 enable_testing()

@@ -29,6 +29,7 @@
 #include <QLabel>
 #include <QTimerEvent>
 #include <networkmanagerqt/manager.h>
+#include <networkmanagerqt/devicestatistics.h>
 
 class NetStatusSettings;
 
@@ -52,6 +53,12 @@ public:
     
     /// Update timer interval from settings
     void setUpdateInterval(int interval);
+    
+    /// Update font size from settings
+    void setFontSize(int size);
+
+private:
+    void initializeStatistics();
 
     friend class TestNetStatusWidget;
 
@@ -72,6 +79,8 @@ protected:
     qulonglong m_lastUpload;
     qulonglong m_lastDownload;
     qint64 m_lastTime;
+    NetworkManager::DeviceStatistics::Ptr m_statistics;
+    bool m_statsInitialized{false};
 };
 
 #endif // NETSTATUSWIDGET_H

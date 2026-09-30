@@ -72,11 +72,13 @@ public:
     bool showSpeed() const;
     bool showTooltip() const;
     int updateInterval() const;
+    int fontSize() const;
 
     // Setters
     void setShowSpeed(bool show);
     void setShowTooltip(bool show);
     void setUpdateInterval(int interval);
+    void setFontSize(int size);
 
 private:
     SettingsStorage *m_settings{nullptr};

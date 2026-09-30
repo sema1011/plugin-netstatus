@@ -41,6 +41,14 @@
         <source> ms</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Font Size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>NetStatusWidget</name>

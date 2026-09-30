@@ -53,6 +53,7 @@ private:
     QCheckBox *m_showSpeedCheckBox;
     QCheckBox *m_showTooltipCheckBox;
     QSpinBox *m_intervalSpinBox;
+    QSpinBox *m_fontSizeSpinBox;
     QDialogButtonBox *buttonBox;
 };
 

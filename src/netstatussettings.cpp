@@ -85,6 +85,13 @@ int NetStatusSettings::updateInterval() const
     return m_settings->value("Display/updateInterval", 1000).toInt();
 }
 
+int NetStatusSettings::fontSize() const
+{
+    if (!m_settings)
+        return 10;
+    return m_settings->value("Display/fontSize", 10).toInt();
+}
+
 void NetStatusSettings::setShowSpeed(bool show)
 {
     if (m_settings)
@@ -101,4 +108,10 @@ void NetStatusSettings::setUpdateInterval(int interval)
 {
     if (m_settings)
         m_settings->setValue("Display/updateInterval", interval);
+}
+
+void NetStatusSettings::setFontSize(int size)
+{
+    if (m_settings)
+        m_settings->setValue("Display/fontSize", size);
 }

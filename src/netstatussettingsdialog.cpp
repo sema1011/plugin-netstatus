@@ -74,6 +74,20 @@ NetStatusSettingsDialog::NetStatusSettingsDialog(NetStatusSettings *settings, QW
 
     layout->addWidget(updateGroup);
 
+    // Font size group
+    QGroupBox *fontGroup = new QGroupBox(tr("Font Size"), this);
+    QVBoxLayout *fontLayout = new QVBoxLayout(fontGroup);
+
+    m_fontSizeSpinBox = new QSpinBox(this);
+    m_fontSizeSpinBox->setMinimum(6);
+    m_fontSizeSpinBox->setMaximum(36);
+    m_fontSizeSpinBox->setSingleStep(1);
+    m_fontSizeSpinBox->setSuffix(" px");
+    m_fontSizeSpinBox->setValue(m_settings->fontSize());
+    fontLayout->addWidget(m_fontSizeSpinBox);
+
+    layout->addWidget(fontGroup);
+
     layout->addStretch();
 
     // Buttons
@@ -98,6 +112,10 @@ void NetStatusSettingsDialog::setupConnections()
         m_modified = true;
     });
 
+    connect(m_fontSizeSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int) {
+        m_modified = true;
+    });
+
     connect(buttonBox, &QDialogButtonBox::clicked, this, [this](QAbstractButton *button) {
         if (button == static_cast<QAbstractButton*>(buttonBox->button(QDialogButtonBox::Apply)))
             onApply();
@@ -111,6 +129,7 @@ void NetStatusSettingsDialog::onApply()
     m_settings->setShowSpeed(m_showSpeedCheckBox->isChecked());
     m_settings->setShowTooltip(m_showTooltipCheckBox->isChecked());
     m_settings->setUpdateInterval(m_intervalSpinBox->value());
+    m_settings->setFontSize(m_fontSizeSpinBox->value());
 
     m_modified = false;
 

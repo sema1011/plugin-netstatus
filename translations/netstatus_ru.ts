@@ -27,6 +27,14 @@
         <source> ms</source>
         <translation> мс</translation>
     </message>
+    <message>
+        <source>Font Size</source>
+        <translation>Размер шрифта</translation>
+    </message>
+    <message>
+        <source> px</source>
+        <translation> пикс</translation>
+    </message>
 </context>
 <context>
     <name>NetStatusWidget</name>

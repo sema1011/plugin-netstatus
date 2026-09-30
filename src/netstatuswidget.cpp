@@ -56,11 +56,14 @@ NetStatusWidget::NetStatusWidget(NetStatusSettings *settings, QWidget *parent):
     
     m_speedLabel->setVisible(m_settings->showSpeed());
     m_speedLabel->setAlignment(Qt::AlignVCenter);
-    m_speedLabel->setStyleSheet("font-size: 10px;");
+    m_speedLabel->setStyleSheet(QString("font-size: %1px;").arg(m_settings->fontSize()));
     m_speedLabel->setObjectName("speedLabel");
     layout->addWidget(m_speedLabel, 0, Qt::AlignVCenter);
     
-    setMaximumSize(120, 48);
+    setMaximumSize(200, 48);
+    
+    // Initialize device statistics
+    initializeStatistics();
     
     // Start speed calculation timer with configurable interval
     m_speedTimer = startTimer(m_currentInterval);
@@ -124,6 +127,12 @@ void NetStatusWidget::setUpdateInterval(int interval)
     }
 }
 
+void NetStatusWidget::setFontSize(int size)
+{
+    if (size > 0)
+        m_speedLabel->setStyleSheet(QString("font-size: %1px;").arg(size));
+}
+
 void NetStatusWidget::timerEvent(QTimerEvent *event)
 {
     if (event->timerId() == m_speedTimer && m_speedLabel->isVisible())
@@ -165,21 +174,56 @@ void NetStatusWidget::getSpeeds(qulonglong &upload, qulonglong &download) const
     upload = 0;
     download = 0;
 
-    // Get active devices from NetworkManager
+    if (m_statistics)
+    {
+        upload += m_statistics->txBytes();
+        download += m_statistics->rxBytes();
+    }
+}
+
+void NetStatusWidget::initializeStatistics()
+{
+    if (m_statsInitialized)
+        return;
+
+    // Prefer wired/wireless devices over loopback
     const auto devices = NetworkManager::networkInterfaces();
 
+    // First pass: look for active wired or wireless devices
     for (const QSharedPointer<NetworkManager::Device> &device : devices)
     {
-        // Only consider managed devices that are in connected state
         if (!device->managed() || device->state() != NetworkManager::Device::State::Activated)
             continue;
 
-        // Get device statistics via DeviceStatistics
+        const QString iface = device->interfaceName();
+        if (iface == "lo")
+            continue;
+
         auto stats = device->deviceStatistics();
         if (stats)
         {
-            upload += stats->txBytes();
-            download += stats->rxBytes();
+            stats->setRefreshRateMs(1000);
+            m_statistics = stats;
+            m_statsInitialized = true;
+            qCDebug(LC_NETSTATUS_WIDGET) << "Using statistics for device:" << iface;
+            return;
+        }
+    }
+
+    // Second pass: fall back to any activated device with statistics
+    for (const QSharedPointer<NetworkManager::Device> &device : devices)
+    {
+        if (!device->managed() || device->state() != NetworkManager::Device::State::Activated)
+            continue;
+
+        auto stats = device->deviceStatistics();
+        if (stats)
+        {
+            stats->setRefreshRateMs(1000);
+            m_statistics = stats;
+            m_statsInitialized = true;
+            qCDebug(LC_NETSTATUS_WIDGET) << "Using statistics for device:" << device->interfaceName();
+            return;
         }
     }
 }
