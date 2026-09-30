@@ -56,6 +56,7 @@ NetStatusSettings::NetStatusSettings()
 
 NetStatusSettings::~NetStatusSettings()
 {
+    delete m_settings;
 }
 
 void NetStatusSettings::init(PluginSettings *settings)

@@ -117,10 +117,16 @@ void NetStatusSettingsDialog::setupConnections()
     });
 
     connect(buttonBox, &QDialogButtonBox::clicked, this, [this](QAbstractButton *button) {
-        if (button == static_cast<QAbstractButton*>(buttonBox->button(QDialogButtonBox::Apply)))
+        if (button == static_cast<QAbstractButton*>(buttonBox->button(QDialogButtonBox::Apply))) {
             onApply();
-        else if (button == static_cast<QAbstractButton*>(buttonBox->button(QDialogButtonBox::Close)))
+        } else {
+            m_settings->setShowSpeed(m_showSpeedCheckBox->isChecked());
+            m_settings->setShowTooltip(m_showTooltipCheckBox->isChecked());
+            m_settings->setUpdateInterval(m_intervalSpinBox->value());
+            m_settings->setFontSize(m_fontSizeSpinBox->value());
+            m_modified = false;
             close();
+        }
     });
 }
 

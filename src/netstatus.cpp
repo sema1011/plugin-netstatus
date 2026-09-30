@@ -66,7 +66,6 @@ void NetStatus::realign()
 
 void NetStatus::settingsChanged()
 {
-    m_settings.init(settings());
     m_widget.setShowSpeed(m_settings.showSpeed());
     m_widget.setUpdateInterval(m_settings.updateInterval());
     m_widget.setFontSize(m_settings.fontSize());
