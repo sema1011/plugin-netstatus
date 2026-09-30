@@ -29,7 +29,7 @@
 #include <QIcon>
 #include <QDateTime>
 #include <QLabel>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 Q_LOGGING_CATEGORY(LC_NETSTATUS_WIDGET, "netstatus.widget")
 
@@ -42,21 +42,20 @@ NetStatusWidget::NetStatusWidget(NetStatusSettings *settings, QWidget *parent):
     m_lastDownload(0),
     m_lastTime(QDateTime::currentMSecsSinceEpoch())
 {
-    auto *layout = new QVBoxLayout(this);
+    auto *layout = new QHBoxLayout(this);
     layout->setContentsMargins(2, 0, 2, 0);
-    layout->setSpacing(0);
+    layout->setSpacing(2);
     
     // Fix icon size so it doesn't stretch
     m_iconLabel->setFixedSize(32, 32);
-    m_iconLabel->setAlignment(Qt::AlignCenter);
-    layout->addWidget(m_iconLabel);
+    layout->addWidget(m_iconLabel, 0, Qt::AlignVCenter);
     
     m_speedLabel->setVisible(m_settings->showSpeed());
-    m_speedLabel->setAlignment(Qt::AlignCenter);
+    m_speedLabel->setAlignment(Qt::AlignVCenter);
     m_speedLabel->setStyleSheet("font-size: 10px;");
-    layout->addWidget(m_speedLabel);
+    layout->addWidget(m_speedLabel, 0, Qt::AlignVCenter);
     
-    setMaximumSize(48, 48);
+    setMaximumSize(120, 48);
     
     // Start speed calculation timer
     m_speedTimer = startTimer(1000);
