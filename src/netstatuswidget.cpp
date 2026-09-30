@@ -30,6 +30,9 @@
 #include <QDateTime>
 #include <QLabel>
 #include <QHBoxLayout>
+#include <networkmanagerqt/device.h>
+#include <networkmanagerqt/devicestatistics.h>
+#include <networkmanagerqt/activeconnection.h>
 
 Q_LOGGING_CATEGORY(LC_NETSTATUS_WIDGET, "netstatus.widget")
 
@@ -40,7 +43,8 @@ NetStatusWidget::NetStatusWidget(NetStatusSettings *settings, QWidget *parent):
     m_speedLabel(new QLabel(this)),
     m_lastUpload(0),
     m_lastDownload(0),
-    m_lastTime(QDateTime::currentMSecsSinceEpoch())
+    m_lastTime(QDateTime::currentMSecsSinceEpoch()),
+    m_currentInterval(settings->updateInterval())
 {
     auto *layout = new QHBoxLayout(this);
     layout->setContentsMargins(2, 0, 2, 0);
@@ -53,12 +57,13 @@ NetStatusWidget::NetStatusWidget(NetStatusSettings *settings, QWidget *parent):
     m_speedLabel->setVisible(m_settings->showSpeed());
     m_speedLabel->setAlignment(Qt::AlignVCenter);
     m_speedLabel->setStyleSheet("font-size: 10px;");
+    m_speedLabel->setObjectName("speedLabel");
     layout->addWidget(m_speedLabel, 0, Qt::AlignVCenter);
     
     setMaximumSize(120, 48);
     
-    // Start speed calculation timer
-    m_speedTimer = startTimer(1000);
+    // Start speed calculation timer with configurable interval
+    m_speedTimer = startTimer(m_currentInterval);
 }
 
 void NetStatusWidget::updateStatus()
@@ -66,6 +71,41 @@ void NetStatusWidget::updateStatus()
     NetworkManager::Connectivity connectivity = NetworkManager::connectivity();
     
     m_iconLabel->setPixmap(getConnectivityIcon().pixmap(32, 32));
+    
+    // Set tooltip with connection details
+    if (m_settings->showTooltip())
+    {
+        QString connName = activeConnectionName();
+        QString ifaceName = activeInterfaceName();
+        
+        QString tooltip;
+        switch (connectivity)
+        {
+            case NetworkManager::Connectivity::Full:
+                tooltip = tr("Connected");
+                break;
+            case NetworkManager::Connectivity::Limited:
+                tooltip = tr("Limited");
+                break;
+            case NetworkManager::Connectivity::Portal:
+                tooltip = tr("Portal");
+                break;
+            default:
+                tooltip = tr("Disconnected");
+                break;
+        }
+        
+        if (!connName.isEmpty())
+            tooltip += "\n" + connName;
+        if (!ifaceName.isEmpty())
+            tooltip += "\n" + ifaceName;
+        
+        setToolTip(tooltip);
+    }
+    else
+    {
+        setToolTip({});
+    }
 }
 
 void NetStatusWidget::setShowSpeed(bool show)
@@ -73,9 +113,20 @@ void NetStatusWidget::setShowSpeed(bool show)
     m_speedLabel->setVisible(show);
 }
 
+void NetStatusWidget::setUpdateInterval(int interval)
+{
+    if (interval != m_currentInterval && interval > 0)
+    {
+        if (m_speedTimer)
+            killTimer(m_speedTimer);
+        m_currentInterval = interval;
+        m_speedTimer = startTimer(m_currentInterval);
+    }
+}
+
 void NetStatusWidget::timerEvent(QTimerEvent *event)
 {
-    if (event->timerId() == m_speedTimer)
+    if (event->timerId() == m_speedTimer && m_speedLabel->isVisible())
     {
         qulonglong upload = 0;
         qulonglong download = 0;
@@ -113,6 +164,24 @@ void NetStatusWidget::getSpeeds(qulonglong &upload, qulonglong &download) const
 {
     upload = 0;
     download = 0;
+
+    // Get active devices from NetworkManager
+    const auto devices = NetworkManager::networkInterfaces();
+
+    for (const QSharedPointer<NetworkManager::Device> &device : devices)
+    {
+        // Only consider managed devices that are in connected state
+        if (!device->managed() || device->state() != NetworkManager::Device::State::Activated)
+            continue;
+
+        // Get device statistics via DeviceStatistics
+        auto stats = device->deviceStatistics();
+        if (stats)
+        {
+            upload += stats->txBytes();
+            download += stats->rxBytes();
+        }
+    }
 }
 
 QIcon NetStatusWidget::getConnectivityIcon() const
@@ -133,4 +202,32 @@ QIcon NetStatusWidget::getConnectivityIcon() const
         default:
             return QIcon::fromTheme("network-wireless-disconnected-symbolic");
     }
+}
+
+QString NetStatusWidget::activeConnectionName() const
+{
+    const auto connections = NetworkManager::activeConnections();
+    for (const QSharedPointer<NetworkManager::ActiveConnection> &conn : connections)
+    {
+        QString id = conn->id();
+        if (!id.isEmpty())
+            return id;
+    }
+    return {};
+}
+
+QString NetStatusWidget::activeInterfaceName() const
+{
+    const auto connections = NetworkManager::activeConnections();
+    for (const QSharedPointer<NetworkManager::ActiveConnection> &conn : connections)
+    {
+        const auto deviceList = conn->devices();
+        if (!deviceList.isEmpty())
+        {
+            auto device = NetworkManager::findNetworkInterface(deviceList.first());
+            if (device)
+                return device->interfaceName();
+        }
+    }
+    return {};
 }

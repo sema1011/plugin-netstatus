@@ -49,18 +49,26 @@ public:
     
     /// Show/hide speed label
     void setShowSpeed(bool show);
+    
+    /// Update timer interval from settings
+    void setUpdateInterval(int interval);
+
+    friend class TestNetStatusWidget;
 
 protected:
     void timerEvent(QTimerEvent *event) override;
 
-private:
+protected:
     QIcon getConnectivityIcon() const;
     void getSpeeds(qulonglong &upload, qulonglong &download) const;
+    QString activeConnectionName() const;
+    QString activeInterfaceName() const;
 
     NetStatusSettings *m_settings;
     QLabel *m_iconLabel;
     QLabel *m_speedLabel;
-    int m_speedTimer;
+    int m_speedTimer{0};
+    int m_currentInterval{1000};
     qulonglong m_lastUpload;
     qulonglong m_lastDownload;
     qint64 m_lastTime;

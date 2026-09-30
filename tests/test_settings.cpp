@@ -23,32 +23,6 @@
  * END_COMMON_COPYRIGHT_HEADER */
 
 #include "netstatussettings.h"
-#include <lxqt/pluginsettings.h>
-
-/**
- * \brief Internal adapter that wraps PluginSettings as SettingsStorage.
- */
-class PluginSettingsAdapter : public SettingsStorage
-{
-public:
-    explicit PluginSettingsAdapter(PluginSettings *settings) : m_settings(settings) {}
-    
-    QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const override
-    {
-        if (!m_settings)
-            return defaultValue;
-        return m_settings->value(key, defaultValue);
-    }
-
-    void setValue(const QString &key, const QVariant &value) override
-    {
-        if (m_settings)
-            m_settings->setValue(key, value);
-    }
-
-private:
-    PluginSettings *m_settings{nullptr};
-};
 
 NetStatusSettings::NetStatusSettings()
 {
@@ -60,8 +34,8 @@ NetStatusSettings::~NetStatusSettings()
 
 void NetStatusSettings::init(PluginSettings *settings)
 {
-    // Create adapter that wraps PluginSettings
-    m_settings = new PluginSettingsAdapter(settings);
+    // This is only used in production, not in tests
+    Q_UNUSED(settings)
 }
 
 bool NetStatusSettings::showSpeed() const

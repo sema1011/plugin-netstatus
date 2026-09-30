@@ -27,8 +27,21 @@
 
 #include <QString>
 #include <QColor>
+#include <QVariant>
 
-class PluginSettings;
+/**
+ * \brief Abstract interface for plugin settings storage.
+ * 
+ * Allows NetStatusSettings to work with both real PluginSettings
+ * and mock implementations for testing.
+ */
+class SettingsStorage
+{
+public:
+    virtual ~SettingsStorage() = default;
+    virtual QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const = 0;
+    virtual void setValue(const QString &key, const QVariant &value) = 0;
+};
 
 /**
  * \brief Settings storage for the NetStatus plugin.
@@ -44,7 +57,16 @@ public:
     /**
      * \brief Initialize settings from PluginSettings.
      */
-    void init(PluginSettings *settings);
+    void init(class PluginSettings *settings);
+
+    /**
+     * \brief Initialize settings from a SettingsStorage interface.
+     * \note For testing purposes only.
+     */
+    void init(SettingsStorage *settings)
+    {
+        m_settings = settings;
+    }
 
     // Display options
     bool showSpeed() const;
@@ -57,7 +79,7 @@ public:
     void setUpdateInterval(int interval);
 
 private:
-    PluginSettings *m_settings{nullptr};
+    SettingsStorage *m_settings{nullptr};
 };
 
 #endif // NETSTATUSSETTINGS_H

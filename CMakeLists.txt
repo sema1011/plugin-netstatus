@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Qt6
-find_package(Qt6 REQUIRED COMPONENTS Widgets Xml DBus Network)
+find_package(Qt6 REQUIRED COMPONENTS Widgets Xml DBus Network Test)
 qt_standard_project_setup()
 
 # LXQt
@@ -31,12 +31,7 @@ set(SOURCES
     src/netstatussettingsdialog.cpp
 )
 
-set(UI_FILES
-    src/netstatussettingsdialog.ui
-)
-
-# Generate headers from UI files
-qt_wrap_ui(UI_HEADERS ${UI_FILES})
+set(UI_FILES)
 
 # Libraries to link
 set(LIBRARIES
@@ -52,7 +47,6 @@ set(LIBRARIES
 add_library(${PROJECT_NAME} MODULE
     ${HEADERS}
     ${SOURCES}
-    ${UI_HEADERS}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBRARIES})
@@ -99,5 +93,35 @@ endif()
 if(TRANSLATION_QM_FILES)
     install(FILES ${TRANSLATION_QM_FILES}
         DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/lxqt/translations/lxqt-panel/netstatus"
+    )
+endif()
+
+# Tests
+enable_testing()
+if(BUILD_TESTING)
+    find_package(Qt6 REQUIRED COMPONENTS Test)
+    
+    add_executable(tst_netstatus
+        tests/tst_netstatus.cpp
+        tests/mock_plugin_settings.h
+        tests/test_settings.cpp
+        src/netstatuswidget.cpp
+    )
+    
+    target_link_libraries(tst_netstatus PRIVATE
+        Qt6::Widgets
+        Qt6::Test
+        Qt6::DBus
+        KF6::NetworkManagerQt
+        lxqt
+    )
+    
+    target_include_directories(tst_netstatus PRIVATE ${CMAKE_SOURCE_DIR}/src)
+    
+    add_test(NAME tst_netstatus COMMAND tst_netstatus)
+    
+    # Set test environment - need DBus session for NetworkManagerQt
+    set_tests_properties(tst_netstatus PROPERTIES
+        ENVIRONMENT "QT_QPA_PLATFORM=offscreen"
     )
 endif()
