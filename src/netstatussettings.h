@@ -29,6 +29,8 @@
 #include <QColor>
 #include <QVariant>
 
+class PluginSettings;
+
 /**
  * \brief Abstract interface for plugin settings storage.
  * 

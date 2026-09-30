@@ -91,7 +91,7 @@ if(BUILD_TESTING)
     add_executable(tst_netstatus
         tests/tst_netstatus.cpp
         tests/mock_plugin_settings.h
-        tests/test_settings.cpp
+        tests/test_settings_impl.cpp
         src/netstatuswidget.cpp
     )
     

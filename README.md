@@ -1,23 +1,24 @@
-# NetManager Plugin for LXQt Panel
+# Индикатор состояния сети для панели LXQt
 
-A panel plugin that displays network connection status and speed using NetworkManager-Qt.
+Плагин панели, отображающий состояние сетевого подключения и скорость через NetworkManager-Qt.
 
-## Features
+## Возможности
 
-- Real-time network connection status display
-- Upload/download speed monitoring
-- Tooltips with connection details
-- Configurable update interval
-- Internationalization support (English, Russian)
+- Отображение статуса сетевого подключения в реальном времени
+- Мониторинг скорости загрузки/отдачи
+- Всплывающие подсказки с деталями подключения
+- Настраиваемый интервал обновления
+- Настраиваемый размер шрифта индикатора скорости
+- Поддержка локализации (английский, русский)
 
-## Requirements
+## Требования
 
-- LXQt 1.0+
-- Qt 6.x
-- NetworkManager-Qt
-- CMake 3.16+
+- LXQt 2.4+
+- Qt 6.10+
+- KF6 NetworkManagerQt
+- CMake 3.18+
 
-## Building
+## Сборка
 
 ```bash
 mkdir build && cd build
@@ -26,42 +27,43 @@ make
 sudo make install
 ```
 
-## Installation
+## Установка
 
-After building, install the plugin:
+После сборки установите плагин:
 
 ```bash
 sudo make install
 ```
 
-Then restart LXQt Panel or load the plugin through Panel Settings.
+Затем перезапустите панель LXQt или загрузите плагин через «Настройки панели».
 
-## Configuration
+## Настройка
 
-Right-click the plugin icon and select "Settings..." to configure:
-- Show/hide speed indicator
-- Show/hide tooltip
-- Update interval (100-10000 ms)
+Нажмите правой кнопкой мыши на значок плагина и выберите «Настройки...»:
+- Показ/скрытие индикатора скорости
+- Показ/скрытие всплывающей подсказки
+- Интервал обновления (100–10000 мс)
+- Размер шрифта индикатора скорости (6–36 px)
 
-## Translation
+## Локализация
 
-To update translation files:
-
-```bash
-lupdate -ts translations/template.ts src/*.h src/*.cpp
-```
-
-To compile translation files:
+Для обновления файлов перевода:
 
 ```bash
-lrelease translations/template.ts translations/ru.ts
+lupdate -ts translations/netstatus.ts src/*.h src/*.cpp
 ```
 
-## License
+Для компиляции файлов перевода:
 
-This plugin is licensed under the GNU Lesser General Public License version 2.1 or later.
+```bash
+lrelease translations/netstatus.ts translations/netstatus_ru.ts
+```
 
-## See Also
+## Лицензия
+
+Этот плагин лицензирован в соответствии с GNU Lesser General Public License версии 2.1 или более поздней.
+
+## См. также
 
 - [LXQt Website](https://lxqt.org/)
 - [NetworkManager-Qt](https://github.com/KDE/NetworkManagerQt)

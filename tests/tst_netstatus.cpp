@@ -26,8 +26,8 @@
 #include <QTemporaryDir>
 #include <QTimer>
 
-#include "netstatussettings.h"
 #include "netstatuswidget.h"
+#include "netstatussettings.h"
 #include "mock_plugin_settings.h"
 
 class TestNetStatusWidget : public QObject
@@ -47,6 +47,9 @@ private slots:
 
     // Timer interval
     void testSetUpdateInterval();
+
+    // Font size
+    void testSetFontSize();
 
     // Icon mapping
     void testConnectivityIcon();
@@ -73,7 +76,7 @@ void TestNetStatusWidget::testWidgetCreation()
     
     NetStatusWidget widget(&netSettings);
     QVERIFY(&widget);
-    QCOMPARE(widget.maximumSize(), QSize(120, 48));
+    QCOMPARE(widget.maximumSize(), QSize(200, 48));
 }
 
 void TestNetStatusWidget::testSpeedLabelVisibility()
@@ -141,6 +144,27 @@ void TestNetStatusWidget::testSetUpdateInterval()
     // Change to maximum
     widget.setUpdateInterval(10000);
     QVERIFY(&widget);
+}
+
+void TestNetStatusWidget::testSetFontSize()
+{
+    QTemporaryDir dir;
+    QVERIFY(dir.isValid());
+    MockPluginSettings settings(dir.path() + "/settings.conf");
+    NetStatusSettings netSettings;
+    netSettings.init(&settings);
+
+    netSettings.setFontSize(14);
+    QCOMPARE(netSettings.fontSize(), 14);
+    
+    NetStatusWidget widget(&netSettings);
+    QVERIFY(&widget);
+    
+    // Change font size
+    widget.setFontSize(18);
+    widget.setFontSize(8);
+    widget.setFontSize(24);
+    QVERIFY(true); // No crash = success
 }
 
 void TestNetStatusWidget::testConnectivityIcon()
